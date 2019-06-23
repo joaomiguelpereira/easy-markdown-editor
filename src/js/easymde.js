@@ -682,7 +682,10 @@ function drawLink(editor) {
     var stat = getState(cm);
     var options = editor.options;
     var url = 'https://';
-    if (options.promptURLs) {
+    if (options.promptLinkUrlCustom) {
+        url = options.promptLinkUrlCustom();
+    }
+    else if (options.promptURLs) {
         url = prompt(options.promptTexts.link, 'https://');
         if (!url) {
             return false;
@@ -695,11 +698,15 @@ function drawLink(editor) {
  * Action for drawing an img.
  */
 function drawImage(editor) {
+    console.log('Draw imaged');
     var cm = editor.codemirror;
     var stat = getState(cm);
     var options = editor.options;
     var url = 'https://';
-    if (options.promptURLs) {
+
+    if (options.promptImageUrlCustom) {
+        url = options.promptImageUrlCustom();
+    } else if (options.promptURLs) {
         url = prompt(options.promptTexts.image, 'https://');
         if (!url) {
             return false;
@@ -1810,6 +1817,10 @@ EasyMDE.prototype.createSideBySide = function () {
 EasyMDE.prototype.createToolbar = function (items) {
     items = items || this.options.toolbar;
 
+    console.log('Create toolbar for items');
+    console.dir(items);
+    console.log(this.options);
+
     if (!items || items.length === 0) {
         return;
     }
@@ -1825,8 +1836,26 @@ EasyMDE.prototype.createToolbar = function (items) {
 
     var self = this;
 
+    if (self.options.customButtonsBefore && self.options.customButtonsBefore.length>0) {
+        items.unshift('|');
+        for(var cb=0; cb < self.options.customButtonsBefore.length; cb++) {
+                items.unshift(self.options.customButtonsBefore[cb]);
+
+        }
+    }
+    if (self.options.customButtonsAfter && self.options.customButtonsAfter.length>0) {
+        for(cb=0; cb < self.options.customButtonsAfter.length; cb++) {
+            items.push(self.options.customButtonsAfter[cb]);
+        }
+    }
+
+
     var toolbarData = {};
     self.toolbar = items;
+    console.log('Create toolbar for items 222');
+    console.dir(items);
+    console.log(this.options);
+
 
     for (i = 0; i < items.length; i++) {
         if (items[i].name == 'guide' && self.options.toolbarGuideIcon === false)
